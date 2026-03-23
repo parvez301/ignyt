@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: ignyt-postgres
+    environment:
+      POSTGRES_DB: ignyt_db
+      POSTGRES_USER: ignyt_user
+      POSTGRES_PASSWORD: ignyt_password
+    volumes:
+      - ignyt-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - ignyt-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile.backend
+    container_name: ignyt-api
+    environment:
+      DATABASE_URL: postgresql://ignyt_user:ignyt_password@postgres:5432/ignyt_db
+      JWT_SECRET: change-me-in-production
+      CORS_ORIGINS: http://localhost:5173
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+    networks:
+      - ignyt-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Containerfile.frontend
+    container_name: ignyt-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - ignyt-network
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  ignyt-postgres-data:
+
+networks:
+  ignyt-network:
+    driver: bridge

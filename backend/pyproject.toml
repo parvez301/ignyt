@@ -1,0 +1,20 @@
+[project]
+name = "ignyt-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/seed/chapter1.py" = ["E501"]
+"app/question_generators/*.py" = ["E501"]
+"alembic/versions/*.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
