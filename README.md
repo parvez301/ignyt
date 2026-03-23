@@ -42,3 +42,39 @@ cd backend && source .venv/bin/activate && pytest
 ```
 
 SQLite is used by default; set `TEST_DATABASE_URL` for PostgreSQL.
+
+## Deploy frontend on Vercel
+
+1. Import this repo in Vercel.
+2. Set project root to `frontend`.
+3. Build settings:
+   - Install command: `npm install`
+   - Build command: `npm run build`
+   - Output directory: `dist`
+4. Add environment variable in Vercel:
+   - `VITE_API_BASE_URL=https://<your-backend-domain>/api`
+
+The backend (FastAPI + PostgreSQL) should be deployed separately (Railway/Render/Fly/etc.).
+Set backend CORS to include your Vercel domain, for example:
+
+`CORS_ORIGINS=https://<your-project>.vercel.app`
+
+## Deploy backend on Render
+
+This repo includes `render.yaml` for Blueprint deploy.
+
+1. In Render, choose **New +** -> **Blueprint**.
+2. Point to this repository (`parvez301/ignyt`).
+3. Render will create:
+   - PostgreSQL database `ignyt-db`
+   - Web service `ignyt-api` from `backend/`
+4. After first deploy, set backend env var:
+   - `CORS_ORIGINS=https://<your-project>.vercel.app`
+5. Open Render Shell for `ignyt-api` and run one-time seed:
+   - `python -m app.seed.chapter1`
+
+Backend URL will be like:
+`https://ignyt-api.onrender.com`
+
+Then in Vercel set:
+`VITE_API_BASE_URL=https://ignyt-api.onrender.com/api`
